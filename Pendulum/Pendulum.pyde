@@ -61,6 +61,6 @@ def draw():
     for x, y in past:
         point(centerX + x, centerY - y)
     stroke(255)
-        
+    
     line(centerX, centerY, centerX + bobX, centerY - bobY)
     circle(centerX + bobX, centerY - bobY, m * 20)

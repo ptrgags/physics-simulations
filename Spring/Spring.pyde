@@ -1,7 +1,12 @@
-k = 5
+k = 5.0
 m = 0.5
+l = 1.0
+w = 0.4
 
 h = 0.01
+
+wallX = -2.5
+SCALE = 100
 
 def spring_motion(vec):
     x, v = vec
@@ -26,6 +31,12 @@ def runge_kutta(f, state):
     d = vscale(h / 6.0, d)
     return vadd(state, a, b, c, d)
 
+def draw_spring(x, y, w, h, coils):
+    dx = w * 1.0 / coils
+    for i in xrange(coils):
+        line(x + i * dx, y, x + (i + 0.5) * dx, y + h)
+        line(x + (i + 0.5) * dx, y + h, x + (i + 1) * dx, y)
+
 def setup():
     global center
     global past
@@ -33,7 +44,7 @@ def setup():
     past = []
     size(640, 480)
     center = [width / 2.0, height / 2.0]
-    spring_state = [-0.5, 0]
+    spring_state = [-0.005, 0]
     
 def draw():
     global spring_state
@@ -50,10 +61,9 @@ def draw():
     
     stroke(255, 0, 0)
     for pastX in past:
-        point(centerX + pastX, centerY)
+        point(centerX + (wallX + l + pastX + w / 2.0) * SCALE, centerY)
     stroke(255)
     
-    line (centerX - 200, centerY + 10, centerX + 100, centerY + 10)
-    line (centerX - 200, centerY - 50, centerX - 200, centerY + 10)
-    line (centerX - 200, centerY, centerX + x - 10, centerY)    
-    rect(centerX + x - 10, centerY - 10, 20, 20)
+    line (centerX + wallX * SCALE, centerY - 50, centerX + wallX * SCALE, centerY + 50)
+    draw_spring(centerX + wallX * SCALE, centerY - w / 2.0 * SCALE, (l + x) * SCALE, w * SCALE, 11)
+    rect(centerX + (wallX + l + x) * SCALE, centerY - w / 2.0 * SCALE, w * SCALE, w * SCALE)
