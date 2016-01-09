@@ -1,4 +1,7 @@
-import time
+import fix_path
+from physics.graphics import circle
+from physics.rungekutta import runge_kutta
+from physics.vectors import vadd, vscale
 
 g = 9.807
 l = 1.0
@@ -6,37 +9,16 @@ m = 1.0
 
 h = 0.01
 
+
 def pendulum_motion(vec): 
     theta, omega = vec
     return [omega, -g / l * sin(theta)]
 
-def vscale(r, vec):
-    return [r * x for x in vec]
-
-def vadd(*args):
-    return [sum(tuple) for tuple in zip(*args)]
-
 #Angular position and velocity
 pendulum_state = [0.9 * PI, 0.0]
 
-def runge_kutta(f, state):
-    a = f(state)
-    b = f(vadd(state, vscale(h / 2.0, a)))
-    c = f(vadd(state, vscale(h / 2.0, b)))
-    d = f(vadd(state, vscale(h, b)))
-          
-    #Apply the weights h/6 * (a + 2b + 2c + d)
-    a = vscale(h / 6.0, a)
-    b = vscale(h / 3.0, b)
-    c = vscale(h / 3.0, c)
-    d = vscale(h / 6.0, d)
-    return vadd(state, a, b, c, d)
-
 def to_rect(r, theta):
     return [r * cos(theta), r * sin(theta)]
-
-def circle(x, y, radius):
-    ellipse(x, y, radius, radius)
 
 def setup():
     global center

@@ -1,4 +1,7 @@
-import time
+import fix_path
+from physics.graphics import circle
+from physics.rungekutta import runge_kutta
+from physics.vectors import vadd, vscale
 
 m_sun = 1
 m_earth = 1
@@ -19,30 +22,8 @@ def orbit_motion(vec):
         0
     ]
 
-def vscale(r, vec):
-    return [r * x for x in vec]
-
-def vadd(*args):
-    return [sum(tuple) for tuple in zip(*args)]
-
-def runge_kutta(f, state):
-    a = f(state)
-    b = f(vadd(state, vscale(h / 2.0, a)))
-    c = f(vadd(state, vscale(h / 2.0, b)))
-    d = f(vadd(state, vscale(h, b)))
-          
-    #Apply the weights h/6 * (a + 2b + 2c + d)
-    a = vscale(h / 6.0, a)
-    b = vscale(h / 3.0, b)
-    c = vscale(h / 3.0, c)
-    d = vscale(h / 6.0, d)
-    return vadd(state, a, b, c, d)
-
 def to_rect(r, theta):
     return [r * cos(theta), r * sin(theta)]
-
-def circle(x, y, radius):
-    ellipse(x, y, radius, radius)
     
 def setup():
     global center
@@ -51,7 +32,7 @@ def setup():
     past = []
     size(640, 480)
     center = [width / 2.0, height / 2.0]
-    earth_state = [d, -0.000001, 0, omega_earth]
+    earth_state = [d, 0, 0, omega_earth]
     
 def draw():
     global earth_state

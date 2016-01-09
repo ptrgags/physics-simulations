@@ -1,3 +1,8 @@
+import fix_path
+from physics.graphics import horizontal_spring
+from physics.rungekutta import runge_kutta
+from physics.vectors import vadd, vscale
+
 k = 5.0
 m = 0.5
 l = 1.0
@@ -11,31 +16,6 @@ SCALE = 100
 def spring_motion(vec):
     x, v = vec
     return [v, -k / m * x]
-
-def vscale(r, vec):
-    return [r * x for x in vec]
-
-def vadd(*args):
-    return [sum(tuple) for tuple in zip(*args)]
-
-def runge_kutta(f, state):
-    a = f(state)
-    b = f(vadd(state, vscale(h / 2.0, a)))
-    c = f(vadd(state, vscale(h / 2.0, b)))
-    d = f(vadd(state, vscale(h, b)))
-          
-    #Apply the weights h/6 * (a + 2b + 2c + d)
-    a = vscale(h / 6.0, a)
-    b = vscale(h / 3.0, b)
-    c = vscale(h / 3.0, c)
-    d = vscale(h / 6.0, d)
-    return vadd(state, a, b, c, d)
-
-def draw_spring(x, y, w, h, coils):
-    dx = w * 1.0 / coils
-    for i in xrange(coils):
-        line(x + i * dx, y, x + (i + 0.5) * dx, y + h)
-        line(x + (i + 0.5) * dx, y + h, x + (i + 1) * dx, y)
 
 def setup():
     global center
@@ -65,5 +45,5 @@ def draw():
     stroke(255)
     
     line (centerX + wallX * SCALE, centerY - 50, centerX + wallX * SCALE, centerY + 50)
-    draw_spring(centerX + wallX * SCALE, centerY - w / 2.0 * SCALE, (l + x) * SCALE, w * SCALE, 11)
+    horizontal_spring(centerX + wallX * SCALE, centerY - w / 2.0 * SCALE, (l + x) * SCALE, w * SCALE, 10)
     rect(centerX + (wallX + l + x) * SCALE, centerY - w / 2.0 * SCALE, w * SCALE, w * SCALE)
