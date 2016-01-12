@@ -1,18 +1,17 @@
 import fix_path
 from physics.graphics import horizontal_spring
-from physics.rungekutta import runge_kutta
+from physics.rungekutta import runge_kutta, RungeKuttaSimulation
 from physics.vectors import Vector, make_rect
 from physics.objects import Block
 
 #Constant scalars:
-k = 5.0 #Spring constant in N/m
-m = 0.5 #mass of bob in kg
-l = 1.0 #Rest length of spring in m
-w = 0.4 #Width of bob in m
+k = 5.0 #Spring constant in N/m          Should be a property of a Spring object
+m = 0.5 #mass of bob in kg               Should be a property of the bob block
+l = 1.0 #Rest length of spring in m      Should be a property of the Spring object
+w = 0.4 #Width of bob in m               Should be a property of the bob Block
 
 SCALE = 100  #Simulation scale in pixels/m
-COILS = 10   #Number of coils for display purposes
-HISTORY_SIZE = 1000 #history points to save
+COILS = 10   #Number of coils for display purposes   Should be a property of the Spring object
 
 #Positions [x, y] in m
 POS_ORIGIN = Vector(-2.5, 0) #Origin coords from center of screen
@@ -29,25 +28,30 @@ DIMS_BOB = Vector(w, w) #Dimensions of bob
 #Objects
 wall = Block(POS_WALL, DIMS_WALL)
 
+INITIAL_STATE = [-0.5, 0]
+
 def spring_motion(vec):
+    '''
+    Motion of a simple harmonic
+    oscillator with a massless, frictionless
+    spring.
+    
+    vec -- x, v of weight on spring
+    returns v, a for the next time step
+    '''
     x, v = vec
-    return [v, -k / m * x]
+    return Vector(v, -k / m * x)
+
+simulation = RungeKuttaSimulation(spring_motion, INITIAL_STATE)
 
 def setup():
     global center
     global past
-    global spring_state
-    past = []
     size(640, 480)
-    center = [width / 2.0, height / 2.0]
-    spring_state = [-0.5, 0]
+    center = Vector(width / 2.0, height / 2.0)
     
 def draw():
-    pass
-    global spring_state
-    spring_state = runge_kutta(spring_motion, spring_state)
-    x, v = spring_state
-
+    x, _ = next(simulation)
     pos_delta = Vector(x, 0)
     
     rect_spring = make_rect(POS_SPRING_REST, DIMS_SPRING_REST + pos_delta)
@@ -55,9 +59,7 @@ def draw():
     
     bob_offset = POS_SPRING_REST_RIGHT + pos_delta
     rect_bob = make_rect(bob_offset, DIMS_BOB)
-
-    if len(past) < HISTORY_SIZE:
-        past.append(x)
+    
     centerX, centerY = center
     
     background(0)
@@ -67,7 +69,7 @@ def draw():
     pushMatrix()
     translate(*center)
     translate(*(SCALE * POS_HISTORY))
-    for pastX in past:
+    for pastX, _ in simulation.history:
         point(pastX * SCALE, 0)
     popMatrix()
     
