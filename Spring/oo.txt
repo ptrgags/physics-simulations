@@ -1,0 +1,31 @@
+The setup for this system is like this
+
+Wall -- Spring -- Bob
+--------Floor--------
+
+Wall:
+- Wall's center of its right side serves as the origin for the system
+- Wall serves as an anchor point for the spring
+- Wall's mass is undefined
+- Wall should display as a line on the right side with lines
+
+
+Spring:
+- Massless
+- Anchored to wall's right center
+- Connected to a bob on the right
+- Equations of motion require a bob on the right
+- Equations of motion describe the width delta of the spring
+- Starting width depends on position of wall and bob
+- Spring should display with horizontal_spring
+
+Bob:
+- Has mass
+- Anchored to spring's right center
+- Tracks history of its center
+- mostly a dumb object
+
+Floor:
+- Shows where the spring and bob contact the floor.
+- There's no friction (yet).
+- Floor's mass is undefined

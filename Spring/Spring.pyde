@@ -2,6 +2,7 @@ import fix_path
 from physics.graphics import horizontal_spring
 from physics.rungekutta import runge_kutta
 from physics.vectors import Vector, make_rect
+from physics.objects import Block
 
 #Constant scalars:
 k = 5.0 #Spring constant in N/m
@@ -14,19 +15,19 @@ COILS = 10   #Number of coils for display purposes
 HISTORY_SIZE = 1000 #history points to save
 
 #Positions [x, y] in m
-POS_ORIGIN = Vector([-2.5, 0]) #Origin coords from center of screen
-POS_WALL = Vector([-w / 4.0, -w]) #Position of the wall
-POS_SPRING_REST = Vector([0, - w / 2.0]) #position of the top left corner of spring at rest measured from origin
+POS_ORIGIN = Vector(-2.5, 0) #Origin coords from center of screen
+POS_WALL = Vector(-w / 8.0, 0) #Position of the wall
+POS_SPRING_REST = Vector(0, - w / 2.0) #position of the top left corner of spring at rest measured from origin
 POS_SPRING_REST_RIGHT = POS_SPRING_REST + [l, 0] #position of the top right corner of spring measured from right
 POS_HISTORY = POS_ORIGIN + [l + w / 2.0, 0] #bob history origin mesaured from origin
 
 #Dimensions [w, h] in m
-DIMS_WALL = Vector([w / 4.0, 2.0 * w]) #Dimensions of wall
-DIMS_SPRING_REST = Vector([l, w]) #Dimensions of spring at rest
-DIMS_BOB = Vector([w, w]) #Dimensions of bob
+DIMS_WALL = Vector(w / 4.0, 2.0 * w) #Dimensions of wall
+DIMS_SPRING_REST = Vector(l, w) #Dimensions of spring at rest
+DIMS_BOB = Vector(w, w) #Dimensions of bob
 
-#Rectangle dimensions [x, y, w, h] in pixels
-RECT_WALL = SCALE * make_rect(POS_WALL, DIMS_WALL)
+#Objects
+wall = Block(POS_WALL, DIMS_WALL)
 
 def spring_motion(vec):
     x, v = vec
@@ -42,12 +43,13 @@ def setup():
     spring_state = [-0.5, 0]
     
 def draw():
+    pass
     global spring_state
     spring_state = runge_kutta(spring_motion, spring_state)
     x, v = spring_state
 
-    pos_delta = Vector([x, 0])
-
+    pos_delta = Vector(x, 0)
+    
     rect_spring = make_rect(POS_SPRING_REST, DIMS_SPRING_REST + pos_delta)
     spring_params = list(SCALE * rect_spring) + [COILS]
     
@@ -69,12 +71,11 @@ def draw():
         point(pastX * SCALE, 0)
     popMatrix()
     
-    
     stroke(255)
     pushMatrix()
     translate(*center)
     translate(*(SCALE * POS_ORIGIN))
-    rect(*RECT_WALL)
+    wall.draw(SCALE)
     horizontal_spring(*spring_params)
     translate(*bob_offset)    
     rect(*(SCALE * rect_bob))

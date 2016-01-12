@@ -6,7 +6,7 @@ def circle(x, y, radius):
     radius -- radius of circle
     '''
     ellipse(x, y, radius, radius)
-
+    
 def horizontal_spring(x, y, w, h, coils):
     '''
     Draw a spring on the screen horizontally
