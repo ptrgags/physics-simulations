@@ -6,7 +6,45 @@ def circle(x, y, radius):
     radius -- radius of circle
     '''
     ellipse(x, y, radius, radius)
-    
+
+def vertical_wall(x, y, w, h, lines, left=False, right=False):
+    '''
+    Draw a wall with lines like in physics diagrams
+    x, y -- position of the top left corner
+    w, h -- dimensions of the wall (bounding box)
+    left -- if True, draw a line on the left side
+    right -- if True, draw a line on the left side
+    '''
+    dy = float(h) / lines
+    pushMatrix()
+    translate(x, y)
+    for i in xrange(lines):
+        line(0, i * dy, w, (i + 0.5) * dy)
+    if left:
+        line(0, 0, 0, h)
+    if right:
+        line(w, 0, w, h)
+    popMatrix()
+
+def horizontal_wall(x, y, w, h, lines, top=False, bottom=False):
+    '''
+    Draw a wall with lines like in physics diagrams
+    x, y -- position of the top left corner
+    w, h -- dimensions of the wall (bounding box)
+    top -- if True, draw a line on the left side
+    bottom -- if True, draw a line on the left side
+    '''
+    dx = float(w) / lines
+    pushMatrix()
+    translate(x, y)
+    for i in xrange(lines):
+        line(i * dx, 0, (i + 0.5) * dx, h)
+    if top:
+        line(0, 0, w, 0)
+    if bottom:
+        line(0, h, w, h)
+    popMatrix()
+
 def horizontal_spring(x, y, w, h, coils):
     '''
     Draw a spring on the screen horizontally
