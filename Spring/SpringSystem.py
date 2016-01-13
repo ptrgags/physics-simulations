@@ -6,7 +6,7 @@ class SpringSystem(object):
     def __init__(self, k, m, l, w, initial_state):
         self.k = k
         self.m = m
-        self.simulation = RungeKuttaSimulation(self.motion, initial_state)
+        self.simulation = RungeKuttaSimulation(self.motion, initial_state, history_size = 100)
         self.state = initial_state
         
         self.wall_pos= Vector(-w / 4.0, -w * 3.0 / 2.0)
@@ -29,8 +29,26 @@ class SpringSystem(object):
     def draw_history(self, origin, scale):
         pushMatrix()
         translate(*origin)
-        for pastX, _ in self.simulation.history:
-            point(*(scale * (self.history_origin + [pastX, 0])))
+        for past_x, _ in self.simulation.history:
+            point(*(scale * (self.history_origin + [past_x, 0])))
+        popMatrix()
+    
+    def draw_phase(self, origin, x_scale, v_scale):
+        pushMatrix()
+        translate(*origin)
+        for past_x, past_v in self.simulation.history:
+            point(x_scale * past_x, v_scale * past_v)
+        popMatrix()
+    
+    def draw_phase_axes(self, origin, x_scale, v_scale, x_limits, v_limits):
+        pushMatrix()
+        translate(*origin)
+        x_min, x_max = x_limits * x_scale
+        line(x_min, 0, x_max, 0)
+        text("x", x_max, 10)
+        v_min, v_max = v_limits * v_scale
+        line(0, v_min, 0, v_max)
+        text("v", 10, -v_max)
         popMatrix()
 
     def draw(self, origin, scale):

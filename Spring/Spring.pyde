@@ -20,9 +20,12 @@ def setup():
     
 def draw():
     system.step()
+    #x, v = system.state
+    #print x, v
     
     center = Vector(width/2.0, height / 2.0)
     origin = center + SCALE * Vector(-2.5, 0)
+    phase_origin = center + Vector(0, -150)
     
     background(0)
     noFill()
@@ -30,3 +33,8 @@ def draw():
     system.draw_history(origin, SCALE)
     stroke(255)
     system.draw(origin, SCALE)
+    
+    stroke(0, 255, 0)
+    system.draw_phase(phase_origin, 100, 20)
+    stroke(255)
+    system.draw_phase_axes(phase_origin, 100, 20, Vector(-0.6, 0.6), Vector(-3, 3))
