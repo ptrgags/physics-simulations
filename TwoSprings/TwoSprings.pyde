@@ -1,7 +1,6 @@
 import fix_path
-from physics.graphics import horizontal_spring
-from physics.rungekutta import runge_kutta
-from physics.vectors import vadd, vscale
+from TwoSpringSystem import TwoSpringSystem
+from physics.vectors import Vector
 
 k1 = 5.0
 m1 = 0.5
@@ -12,51 +11,29 @@ l2 = 1.0
 w1 = 0.4
 w2 = 0.4
 
-h = 0.01
-wallX = -2.5
-
 SCALE=100
-
-def spring_motion(vec):
-    x1, v1, x2, v2 = vec
-    a1 = (k2 * x2 - k1 * x1 - k2 * x1) / m1
-    a2 = (k2 * x1 - k2 * x2) / m2
-    return [v1, a1, v2, a2]
+INITIAL_STATE = [-0.5, 0.0, -0.5, 0.0]
 
 def setup():
-    global center
-    global past
-    global spring_state
-    past = []
+    global system
     size(640, 480)
-    center = [width / 2.0, height / 2.0]
-    spring_state = [-0.5, 0, -0.5, 0]
+    system = TwoSpringSystem(k1, k2, m1, m2, l1, l2, w1, w2, INITIAL_STATE, 200)
 
 def draw():
-    global spring_state
-    spring_state = runge_kutta(spring_motion, spring_state)
-    x1, v1, x2, v2 = spring_state
-
-    if len(past) < 1000:
-        past.append((x1, x2))
-    centerX, centerY = center
-
+    system.step()
+    
+    center = Vector(width / 2.0, height / 2.0)
+    origin = center + SCALE * Vector(-2.5, 0)
+    phase_origin = center + Vector(0, -150)
+    
     background(0)
     noFill()
-
-    stroke(255, 0, 0)
-    for pastX1, pastX2 in past:
-        point(centerX + (wallX + l1 + pastX1 + w1 / 2.0) * SCALE, centerY)
-        point(centerX + (wallX + l1 + pastX1 + w1 + l2 + pastX2 + w2 / 2.0) * SCALE, centerY)
-    stroke(255)
-
-    #Wall
-    line(centerX + wallX * SCALE, centerY - 50, centerX + wallX * SCALE, centerY + 50)
-
-    #Spring + Bob 1
-    horizontal_spring(centerX + wallX * SCALE, centerY - w1 / 2.0 * SCALE, (l1 + x1) * SCALE, w1 * SCALE, 10)
-    rect(centerX + (wallX + l1 + x1) * SCALE, centerY - w1 / 2.0 * SCALE, w1 * SCALE, w1 * SCALE)
-
-    #Spring + Bob 2
-    horizontal_spring(centerX + (wallX + l1 + x1 + w1) * SCALE, centerY - w2 / 2.0 * SCALE, (l2 + x2) * SCALE, w2 * SCALE, 10)
-    rect(centerX + (wallX + l1 + x1 + w1 + l2 + x2) * SCALE, centerY - w2 / 2.0 * SCALE, w2 * SCALE, w2 * SCALE)
+    
+    colors = [color(0, 255, 0), color(255, 255, 00)]
+    
+    system.draw_history(origin, SCALE)
+    system.draw(origin, SCALE, colors)
+    
+    for i, c in enumerate(colors):
+        system.draw_phase(phase_origin, 100, 20, c, i)
+    system.draw_phase_axes(phase_origin, 100, 20, Vector(-0.6, 0.6), Vector(-3, 3))
