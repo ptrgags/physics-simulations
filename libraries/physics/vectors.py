@@ -58,6 +58,13 @@ class Vector(object):
         self.components = [scale * x for x in self]
         return self
 
+def polar2rect(polar, flip_y = False):
+    r, theta = polar
+    if flip_y:
+        return Vector(r * cos(theta), - r * sin(theta))
+    else:
+        return Vector(r * cos(theta), r * sin(theta))
+
 #Not sure what to do with these:
 def make_rect(position, dimensions):
     return Vector(*(list(position) + list(dimensions)))
