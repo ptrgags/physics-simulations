@@ -1,6 +1,6 @@
-from physics.graphics import horizontal_spring, vertical_wall, horizontal_wall
 from physics.vectors import Vector
 from physics.System import System
+from physics.objects import SpringBob, Wall
 
 class TwoSpringSystem(System):
     def __init__(self, k1, k2, m1, m2, l1, l2, w1, w2, initial_state, history_size = 100):
@@ -13,96 +13,47 @@ class TwoSpringSystem(System):
         w = max(w1, w2)
         l = l1 + l2
 
-        self.wall_pos= Vector(-w / 4.0, -w * 3.0 / 2.0)
-        self.wall_dims = Vector(w / 4.0, w * 2.0)
-        self.floor_pos = Vector(0, w / 2.0)
-        self.floor_dims = Vector(l * 2.0, w / 4.0)
+        self.spring1 = SpringBob(k1, m1, l1, w1, 15)
+        self.spring2 = SpringBob(k2, m2, l2, w2, 15)
 
-        self.spring1_pos = Vector(0, -w1 / 2.0)
-        self.spring1_dims_rest = Vector(l1, w1)
-        self.spring2_pos_rest = Vector(l1 + w1, -w2 / 2.0)
-        self.spring2_dims_rest = Vector(l2, w2)
+        wall_pos= Vector(-w / 4.0, -w * 3.0 / 2.0)
+        wall_dims = Vector(w / 4.0, w * 2.0)
+        self.wall = Wall(wall_pos, wall_dims, 10, right=True)
 
-        self.bob1_pos_rest = Vector(l1, -w1 / 2.0)
-        self.bob1_dims = Vector(w1, w1)
-        self.bob2_pos_rest = Vector(l1 + w1 + l2, -w2 / 2.0)
-        self.bob2_dims = Vector(w2, w2)
-
-        self.history_origin1 = Vector(l1 + w / 2.0, 0)
-        self.history_origin2 = Vector(l1 + w1 + l2 + w2 / 2.0, 0)
+        floor_pos = Vector(0, w / 2.0)
+        floor_dims = Vector(l * 2.0, w / 4.0)
+        self.floor = Wall(floor_pos, floor_dims, 20, top=True)
 
     def motion(self, state):
         x1, v1, x2, v2 = state
-        a1 = (self.k2 * x2 - self.k1 * x1 - self.k2 * x1) / self.m1
-        a2 = (self.k2 * x1 - self.k2 * x2) / self.m2
+        k1 = self.spring1.spring_constant
+        k2 = self.spring2.spring_constant
+        m1 = self.spring1.bob_mass
+        m2 = self.spring2.bob_mass
+        a1 = (k2 * x2 - k1 * x1 - k2 * x1) / m1
+        a2 = (k2 * x1 - k2 * x2) / m2
         return Vector(v1, a1, v2, a2)
 
-    def draw_history(self, origin, scale, c=color(255, 0, 0)):
-        pushMatrix()
-        translate(*origin)
-        stroke(c)
-        for past_x1, _, past_x2, _ in self.simulation.history:
-            point(*(scale * (self.history_origin1 + [past_x1, 0])))
-            point(*(scale * (self.history_origin2 + [past_x1 + past_x2, 0])))
-        popMatrix()
+    def history_points(self, scale, state):
+        x1, _, x2, _ = state
+        rest_x1 = self.spring1.rest_length + self.spring1.bob_width / 2.0
+        rest_x2 = (self.spring1.rest_length + self.spring1.bob_width
+            + self.spring2.rest_length + self.spring2.bob_width / 2.0)
+        point1 = scale * Vector(rest_x1 + x1, 0)
+        point2 = scale * Vector(rest_x2 + x2, 0)
+        return point1, point2
 
-    def draw_phase(self, origin, x_scale, v_scale, c, component = 0):
-        pushMatrix()
-        translate(*origin)
-        stroke(c)
-        index = component * 2
-        past = [state[index:index + 2] for state in self.simulation.history]
-        for x, v in past:
-            point(x_scale * x, v_scale * v)
-        popMatrix()
-
-    def draw_phase_axes(self, origin, x_scale, v_scale, x_limits, v_limits, c=color(255, 255, 255)):
-        pushMatrix()
-        translate(*origin)
-        stroke(c)
-        x_min, x_max = x_limits * x_scale
-        line(x_min, 0, x_max, 0)
-        text("x", x_max, 10)
-        v_min, v_max = v_limits * v_scale
-        line(0, v_min, 0, v_max)
-        text("v", 10, -v_max)
-        popMatrix()
+    def draw_walls(self, origin, scale, wall_color):
+        self.wall.draw(origin, scale, wall_color)
+        self.floor.draw(origin, scale, wall_color)
 
     def draw(self, origin, scale, colors):
-        spring_x1, _, spring_x2, _ = self.state
+        x1, _, x2, _ = self.state
 
-        pushMatrix()
-        translate(*origin)
-        stroke(255)
-        #Wall
-        x, y = self.wall_pos * scale
-        w, h = self.wall_dims * scale
-        vertical_wall(x, y, w, h, 10, right=True)
+        self.spring1.stretch = x1
+        self.spring2.stretch = x2 - x1
 
-        #Floor
-        x, y = self.floor_pos * scale
-        w, h = self.floor_dims * scale
-        horizontal_wall(x, y, w, h, 20, top=True)
+        origin2 = scale * self.spring1.right_pos + origin
 
-        stroke(colors[0])
-        #Spring1
-        x, y = self.spring1_pos * scale
-        w, h = (self.spring1_dims_rest + [spring_x1, 0]) * scale
-        horizontal_spring(x, y, w, h, 10)
-
-        #Bob1
-        x, y = (self.bob1_pos_rest + [spring_x1, 0]) * scale
-        w, h = self.bob1_dims * scale
-        rect(x, y, w, h)
-
-        stroke(colors[1])
-        #Spring2
-        x, y = (self.spring2_pos_rest + [spring_x1, 0]) * scale
-        w, h = (self.spring2_dims_rest + [spring_x2, 0]) * scale
-        horizontal_spring(x, y, w, h, 10)
-
-        #Bob2
-        x, y = (self.bob2_pos_rest + [spring_x1 + spring_x2, 0]) * scale
-        w, h = self.bob2_dims * scale
-        rect(x, y, w, h)
-        popMatrix()
+        self.spring1.draw(origin, scale, colors[0])
+        self.spring2.draw(origin2, scale, colors[1])
