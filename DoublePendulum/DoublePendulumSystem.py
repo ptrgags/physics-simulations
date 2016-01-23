@@ -113,19 +113,29 @@ class DoublePendulumSystem(System):
 
     def draw(self, origin, scale, colors):
         bob_theta1, _, bob_theta2, _ = self.state
-        bob_delta_polar1 = Vector(0, bob_theta1)
-        bob_delta_polar2 = Vector(0, bob_theta2)
+        origin_r1, origin_theta1 = self.bob_pos_rest1
+        origin_r2, origin_theta2 = self.bob_pos_rest2
 
+        #Translate to where the pendulum starts
         pushMatrix()
         translate(*origin)
+        #Rotate so the x-axis points down
+        rotate(-origin_theta1)
+        
+        #Rotate the coordinates so the x-axis points down the length of the first pendulum
+        rotate(-bob_theta1)
         stroke(colors[0])
-        x1, y1 = scale * polar2rect(bob_delta_polar1 + self.bob_pos_rest1, flip_y = True)
-        line(0, 0, x1, y1)
-        circle(x1, y1, self.bob_size1)
-        translate(x1, y1)
-
+        line(0, 0, scale * origin_r1, 0)
+        circle(scale * origin_r1, 0, self.bob_size1)
+        
+        #translate to the end of the first bob and
+        #reset the rotation back to the origin 
+        translate(scale * origin_r1, 0)
+        rotate(bob_theta1)
+        
+        #rotate so the x-axis points down the length of the second pendulum
+        rotate(-bob_theta2)
         stroke(colors[1])
-        x2, y2 = scale * polar2rect(bob_delta_polar2 + self.bob_pos_rest2, flip_y = True)
-        line(0, 0, x2, y2)
-        circle(x2, y2, self.bob_size2)
+        line(0, 0, scale * origin_r2, 0)
+        circle(scale * origin_r2, 0, self.bob_size2)
         popMatrix()

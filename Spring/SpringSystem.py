@@ -3,8 +3,8 @@ from physics.System import System
 from physics.vectors import Vector
 
 class SpringSystem(System):
-    def __init__(self, k, m, l, w, initial_state):
-        super(SpringSystem, self).__init__(initial_state)
+    def __init__(self, k, m, l, w, initial_state, history_size = 100):
+        super(SpringSystem, self).__init__(initial_state, history_size)
         self.k = k
         self.m = m
 

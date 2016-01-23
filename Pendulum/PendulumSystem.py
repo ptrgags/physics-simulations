@@ -53,13 +53,14 @@ class PendulumSystem(System):
 
     def draw(self, origin, scale, colors):
         bob_theta, _ = self.state
-        bob_delta_polar = Vector(0, bob_theta)
+
+        origin_r, origin_theta = self.bob_pos_rest
 
         pushMatrix()
         translate(*origin)
         stroke(colors[0])
-        x, y = scale * polar2rect(bob_delta_polar + self.bob_pos_rest, flip_y = True)
+        rotate(-(bob_theta + origin_theta))
 
-        line(0, 0, x, y)
-        circle(x, y, self.bob_size)
+        line(0, 0, scale * origin_r, 0)
+        circle(scale * origin_r, 0, self.bob_size)
         popMatrix()
