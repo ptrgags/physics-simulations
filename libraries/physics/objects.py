@@ -1,23 +1,25 @@
-class Block(object):
-    '''
-    Defines a rectangular block
-    '''
-    def __init__(self, position, dimensions, mass=None):
-        self.position = position
-        self.dimensions = dimensions
-        self.mass = mass
+from graphics import circle
+from vectors import Vector
+
+class PendulumBob(object):
+    def __init__(self, l, m, r, origin_theta=-HALF_PI):
+        self.length = l
+        self.mass = m
+        self.bob_radius = r
+        self.angle = 0
+        self.__origin_theta = origin_theta
 
     @property
-    def center(self):
-        return self.position
+    def bob_pos(self):
+        x = self.length * sin(self.angle)
+        y = self.length * cos(self.angle)
+        return Vector(x, y)
 
-    @property
-    def right(self):
-        w, h = self.dimensions
-        return self.position + [w / 2.0, 0]
-
-    def draw(self, scale=1.0):
-        x, y = scale * (self.position - 0.5 * self.dimensions)
-        w, h = scale * self.dimensions
-        rect(x, y, w, h)
-        point(x, y)
+    def draw(self, origin, scale, color):
+        pushMatrix()
+        translate(*origin)
+        stroke(color)
+        rotate(-self.__origin_theta - self.angle)
+        line(0, 0, scale * self.length, 0)
+        circle(scale * self.length, 0, self.bob_radius)
+        popMatrix()

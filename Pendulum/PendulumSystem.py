@@ -3,22 +3,17 @@ from physics.vectors import Vector, polar2rect
 from physics.constants import g
 from physics.System import System
 
+from physics.objects import PendulumBob
+
 class PendulumSystem(System):
     def __init__(self, l, m, bob_r, initial_state, history_size = 100):
         super(PendulumSystem, self).__init__(initial_state, history_size)
-        self.m = m
-
-        self.bob_size = bob_r
-        self.l = l
-
-        #These are in POLAR coordinates [r, theta]
-        self.bob_pos_rest = Vector(l, -HALF_PI)
-
-        self.history_origin = self.bob_pos_rest
+        self.pendulum = PendulumBob(l, m, bob_r)
+        self.history_origin = Vector(l, -HALF_PI)
 
     def motion(self, state):
         theta, theta_dot = state
-        return Vector(theta_dot, -g / self.l * sin(theta))
+        return Vector(theta_dot, -g / self.pendulum.length * sin(theta))
 
     def draw_history(self, origin, scale, c=color(255, 0, 0)):
         pushMatrix()
@@ -53,14 +48,5 @@ class PendulumSystem(System):
 
     def draw(self, origin, scale, colors):
         bob_theta, _ = self.state
-
-        origin_r, origin_theta = self.bob_pos_rest
-
-        pushMatrix()
-        translate(*origin)
-        stroke(colors[0])
-        rotate(-(bob_theta + origin_theta))
-
-        line(0, 0, scale * origin_r, 0)
-        circle(scale * origin_r, 0, self.bob_size)
-        popMatrix()
+        self.pendulum.angle = bob_theta
+        self.pendulum.draw(origin, scale, colors[0])

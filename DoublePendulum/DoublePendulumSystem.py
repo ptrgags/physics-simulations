@@ -3,32 +3,27 @@ from physics.System import System
 from physics.vectors import Vector, polar2rect
 from physics.constants import g
 
+from physics.objects import PendulumBob
+
 class DoublePendulumSystem(System):
     def __init__(self, l1, l2, m1, m2, bob_r1, bob_r2, initial_state, history_size = 100):
         super(DoublePendulumSystem, self).__init__(initial_state, history_size)
-        self.m1 = m1
-        self.m2 = m2
 
-        self.bob_size1 = bob_r1
-        self.bob_size2 = bob_r2
-        self.l1 = l1
-        self.l2 = l2
+        self.pendulum1 = PendulumBob(l1, m1, bob_r1)
+        self.pendulum2 = PendulumBob(l2, m2, bob_r2)
 
         #These are in POLAR coordinates [r, theta]
-        self.bob_pos_rest1 = Vector(l1, -HALF_PI)
-        self.bob_pos_rest2 = Vector(l2, -HALF_PI)
-
-        self.history_origin1 = self.bob_pos_rest1
-        self.history_origin2 = self.bob_pos_rest2
+        #self.history_origin1 = Vector(l1, -HALF_PI)
+        #self.history_origin2 = Vector(l2, -HALF_PI)
 
     def motion(self, state):
         theta1, theta_dot1, theta2, theta_dot2 = state
 
         #Localize these for convenience
-        m1 = self.m1
-        m2 = self.m2
-        l1 = self.l1
-        l2 = self.l2
+        m1 = self.pendulum1.mass
+        m2 = self.pendulum2.mass
+        l1 = self.pendulum1.length
+        l2 = self.pendulum2.length
 
         #convenience substitutions
         M = m1 + m2
@@ -79,14 +74,18 @@ class DoublePendulumSystem(System):
         pushMatrix()
         translate(*origin)
         stroke(c)
-        for past_theta1, _, past_theta2, _ in self.simulation.history:
-            polar1 = self.history_origin1 + [0, past_theta1]
-            polar2 = self.history_origin2 + [0, past_theta2]
-            x1, y1 = scale * polar2rect(polar1, flip_y = True)
-            x2, y2 = scale * polar2rect(polar2, flip_y = True)
-            point(x1, y1)
-            point(x1 + x2, y1 + y2)
+        for state in self.simulation.history:
+            for p in self.history_points(scale, state):
+                point(*p)
         popMatrix()
+
+    def history_points(self, scale, state):
+        theta1, _, theta2, _ = state
+        polar1 = [self.pendulum1.length, theta1 - HALF_PI]
+        polar2 = [self.pendulum2.length, theta2 - HALF_PI]
+        point1 = scale * polar2rect(polar1, flip_y = True)
+        point2 = scale * polar2rect(polar2, flip_y = True)
+        return point1, point1 + point2
 
     def draw_phase(self, origin, x_scale, v_scale, c, component = 0):
         pushMatrix()
@@ -112,30 +111,12 @@ class DoublePendulumSystem(System):
         popMatrix()
 
     def draw(self, origin, scale, colors):
-        bob_theta1, _, bob_theta2, _ = self.state
-        origin_r1, origin_theta1 = self.bob_pos_rest1
-        origin_r2, origin_theta2 = self.bob_pos_rest2
+        theta1, _, theta2, _ = self.state
+        self.pendulum1.angle = theta1
+        self.pendulum2.angle = theta2
 
-        #Translate to where the pendulum starts
-        pushMatrix()
-        translate(*origin)
-        #Rotate so the x-axis points down
-        rotate(-origin_theta1)
-        
-        #Rotate the coordinates so the x-axis points down the length of the first pendulum
-        rotate(-bob_theta1)
-        stroke(colors[0])
-        line(0, 0, scale * origin_r1, 0)
-        circle(scale * origin_r1, 0, self.bob_size1)
-        
-        #translate to the end of the first bob and
-        #reset the rotation back to the origin 
-        translate(scale * origin_r1, 0)
-        rotate(bob_theta1)
-        
-        #rotate so the x-axis points down the length of the second pendulum
-        rotate(-bob_theta2)
-        stroke(colors[1])
-        line(0, 0, scale * origin_r2, 0)
-        circle(scale * origin_r2, 0, self.bob_size2)
-        popMatrix()
+        #Origin of second bob depends on first bob
+        origin2 = scale * self.pendulum1.bob_pos + origin
+
+        self.pendulum1.draw(origin, scale, colors[0])
+        self.pendulum2.draw(origin2, scale, colors[1])
