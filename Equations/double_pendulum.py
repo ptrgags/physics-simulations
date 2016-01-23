@@ -5,9 +5,6 @@ from sympy import Eq
 from sympy import cos
 from sympy import sin
 from sympy import solve
-from sympy import simplify
-from sympy import factor
-from sympy import expand
 from sympy import latex
 
 #Symbols
@@ -55,9 +52,9 @@ lhs2 = diff(diff(L, theta_dot2), t)
 motion = solve([Eq(lhs1, rhs1), Eq(lhs2, rhs2)], [theta_dot_dot1, theta_dot_dot2])
 for sym in motion:
     eqn = Eq(sym, motion[sym])
-    print latex(eqn.subs(theta_dot_dot1, alpha1)
+    print eqn.subs(theta_dot_dot1, alpha1)
         .subs(theta_dot_dot2, alpha2)
         .subs(theta_dot1, omega1)
         .subs(theta_dot2, omega2)
         .subs(theta1(t), th1)
-        .subs(theta2(t), th2))
+        .subs(theta2(t), th2)

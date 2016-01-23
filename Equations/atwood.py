@@ -2,12 +2,7 @@ from sympy import symbols
 from sympy import Function
 from sympy import diff
 from sympy import Eq
-from sympy import cos
-from sympy import sin
 from sympy import solve
-from sympy import simplify
-from sympy import factor
-from sympy import expand
 from sympy import latex
 
 #symbols
