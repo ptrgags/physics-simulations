@@ -36,3 +36,7 @@ def draw():
     
     system.draw_phase(phase_origin, 100, 20)
     system.draw_phase_axes(phase_origin, 100, 20, Vector(-0.6, 0.6), Vector(-3, 3))
+
+def keyReleased():
+    if key == ' ':
+        system.toggle_paused()

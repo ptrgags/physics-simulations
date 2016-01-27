@@ -17,9 +17,14 @@ class System(object):
             color(255, 0, 255),
             color(0, 255, 255)
         ]
+        self.paused = False
 
     def step(self):
-        self.state = next(self.simulation)
+        if not self.paused:
+            self.state = next(self.simulation)
+
+    def toggle_paused(self):
+        self.paused = not self.paused
 
     def motion(self, state):
         raise NotImplementedError

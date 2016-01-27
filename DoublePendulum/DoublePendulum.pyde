@@ -33,3 +33,7 @@ def draw():
     system.draw_phase(phase_origin, 10, 3)
     system.draw_phase(phase_origin, 10, 3, 1)
     system.draw_phase_axes(phase_origin, 10, 3, Vector(0, TAU), Vector(-10, 10), xlabel='theta', vlabel='omega')
+    
+def keyReleased():
+    if key == ' ':
+        system.toggle_paused()
