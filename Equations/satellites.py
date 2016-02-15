@@ -17,7 +17,7 @@ theta = Function('theta')
 theta_dot = diff(theta(t), t)
 theta_dot_dot = diff(theta_dot, t)
 
-T = m / 2 * (r_dot ** 2 + r(t) * theta_dot ** 2)
+T = m / 2 * (r_dot ** 2 + r(t) ** 2 * theta_dot ** 2)
 V = -G * M * m / r(t)
 
 L = T - V
