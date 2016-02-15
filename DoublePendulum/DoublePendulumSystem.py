@@ -88,7 +88,7 @@ class DoublePendulumSystem(System):
         past = [state[index:index + 2] for state in self.simulation.history]
         for x, v in past:
             x = (x + HALF_PI) % TAU
-            point(x_scale * x, v_scale * v)
+            point(x_scale * x, -v_scale * v)
         popMatrix()
 
     def draw(self, origin, scale, colors):

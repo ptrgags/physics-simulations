@@ -1,57 +1,35 @@
 import fix_path
-from physics.graphics import circle
-from physics.rungekutta import runge_kutta
-from physics.vectors import vadd, vscale
+from SatelliteSystem import SatelliteSystem
+from physics.vectors import Vector
 
 m_sun = 1
 m_earth = 1
 d = 1
-G = 1
-#Speed of earth's orbit
-v_earth = 1 #m/sec
-omega_earth = v_earth / d
 
-h = 0.01
+#Angular Speed of earth's orbit
+omega_earth = 1
 
-def orbit_motion(vec):
-    r, r_dot, theta, theta_dot = vec
-    return [
-        r_dot,
-        r * theta_dot * theta_dot - G * m_sun / r / r,
-        theta_dot,
-        0
-    ]
+SCALE = 150
+INITIAL_STATE = [d, 0, 0, omega_earth]
+print INITIAL_STATE
 
-def to_rect(r, theta):
-    return [r * cos(theta), r * sin(theta)]
-    
 def setup():
+    global system
     global center
-    global earth_state
-    global past
-    past = []
+    global phase_origin
+    
     size(640, 480)
-    center = [width / 2.0, height / 2.0]
-    earth_state = [d, 0, 0, omega_earth]
+    system = SatelliteSystem(m_earth, INITIAL_STATE)
     
+    center = Vector(width / 2.0, height / 2.0)
+    phase_origin = center + Vector(-200, -150)
+
 def draw():
-    global earth_state
-    
-    earth_state = runge_kutta(orbit_motion, earth_state)
-    r, r_dot, theta, theta_dot = earth_state
-    earthX, earthY = vscale(200, to_rect(r, theta))
-    if len(past) < 1000:
-        past.append((earthX, earthY))
-    
-    centerX, centerY = center
-    
+    system.step()
     background(0)
-    noFill()
     
-    stroke(255, 0, 0)
-    for x, y in past:
-        point(centerX + x, centerY - y)
-    stroke(255)
-    
-    circle(centerX, centerY, 100) #Sun    
-    circle(centerX + earthX, centerY - earthY, 50) #Earth
+    system.draw_history(center, SCALE)
+    system.draw_system(center, SCALE)
+ 
+    system.draw_phase(phase_origin, 10, 3, 1)
+    system.draw_phase_axes(phase_origin, 10, 3, Vector(0, TAU), Vector(-10, 10), xlabel='theta', vlabel='omega') 

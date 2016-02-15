@@ -48,7 +48,7 @@ class System(object):
         index = component * 2
         past = [state[index:index + 2] for state in self.simulation.history]
         for x, v in past:
-            point(x_scale * x, v_scale * v)
+            point(x_scale * x, -v_scale * v)
         popMatrix()
 
     def draw_phase_axes(self, origin, x_scale, v_scale, x_limits, v_limits, c=color(255, 255, 255),
