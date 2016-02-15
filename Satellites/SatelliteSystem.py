@@ -4,14 +4,15 @@ from physics.System import System
 from physics.graphics import circle
 
 class SatelliteSystem(System):
-    def __init__(self, m, initial_state, history_size = 100):
+    def __init__(self, G, M, initial_state, history_size = 150):
         super(SatelliteSystem, self).__init__(initial_state, history_size)
-        self.m = m
+        self.M = M
+        self.G = G
 
     def motion(self, state):
         r, r_dot, theta, theta_dot = state
-        r_accel = r * theta_dot * theta_dot - self.m / r / r
-        theta_accel = 0
+        r_accel = - self.G * self.M / r / r + r * theta_dot * theta_dot
+        theta_accel = -2 * r_dot * theta_dot / r
         return Vector(r_dot, r_accel, theta_dot, theta_accel)
 
     def history_points(self, scale, state):
@@ -39,11 +40,11 @@ class SatelliteSystem(System):
         r, _, theta, _ = self.state
         pushMatrix()
         translate(*origin)
-        stroke(colors[1])
-        circle(0, 0, 30)
+        stroke(colors[0])
+        circle(0, 0, 50)
         
         polar = Vector(r, theta)
         x, y = scale * polar2rect(polar, flip_y = True)
-        stroke(colors[0])
-        circle(x, y, 30)
+        stroke(colors[1])
+        circle(x, y, 10)
         popMatrix()
